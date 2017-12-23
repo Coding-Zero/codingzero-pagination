@@ -13,6 +13,10 @@ public interface PaginatedResultDelegate<T> {
     T fetchResult(ResultFetchRequest request);
 
     default ResultPage nextPage(ResultFetchRequest request, T currentResult){
+        if (NumberBasedResultPage.class.isInstance(request.getPage())) {
+            NumberBasedResultPage page = (NumberBasedResultPage) request.getPage();
+            return page.next();
+        }
         throw new UnsupportedOperationException("nextPage() need to be implemented first!");
     }
     

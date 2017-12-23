@@ -15,4 +15,8 @@ public class NumberBasedResultPage extends ResultPage<Integer> {
         }
     }
 
+    public NumberBasedResultPage next() {
+        return new NumberBasedResultPage(getStart() + getSize(), getSize());
+    }
+
 }
