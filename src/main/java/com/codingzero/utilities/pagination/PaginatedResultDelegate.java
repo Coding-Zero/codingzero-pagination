@@ -13,7 +13,7 @@ public interface PaginatedResultDelegate<T> {
     T fetchResult(ResultFetchRequest request);
 
     default ResultPage nextPage(ResultFetchRequest request, T currentResult){
-        throw new UnsupportedOperationException("Need to be implemented first!");
+        throw new UnsupportedOperationException("nextPage() need to be implemented first!");
     }
     
 }
