@@ -13,9 +13,9 @@ public abstract class PaginatedResultMapper<T, S> implements PaginatedResultDele
     }
 
     @Override
-    public ResultPage nextPage(ResultFetchRequest request, T currentResult) {
+    public ResultPage nextPage(ResultFetchRequest currentRequest, T currentResult) {
         @SuppressWarnings("unchecked")
-        PaginatedResult<S> result = (PaginatedResult<S>) request.getArguments()[RESULT_SOURCE_INDEX];
+        PaginatedResult<S> result = (PaginatedResult<S>) currentRequest.getArguments()[RESULT_SOURCE_INDEX];
         return result.next().getPage();
     }
 

@@ -1,10 +1,10 @@
 package com.codingzero.utilities.pagination;
 
-public class NumberBasedResultPage extends ResultPage<Integer> {
+public class OffsetBasedResultPage extends ResultPage<Integer> {
 
     private static final int MINIMAL_START = 1;
 
-    public NumberBasedResultPage(Integer start, int size) {
+    public OffsetBasedResultPage(Integer start, int size) {
         super(start, size);
         checkForInvalidStart();
     }
@@ -15,8 +15,8 @@ public class NumberBasedResultPage extends ResultPage<Integer> {
         }
     }
 
-    public NumberBasedResultPage next() {
-        return new NumberBasedResultPage(getStart() + getSize(), getSize());
+    public OffsetBasedResultPage next() {
+        return new OffsetBasedResultPage(getStart() + getSize(), getSize());
     }
 
 }
