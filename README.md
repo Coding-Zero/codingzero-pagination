@@ -1,6 +1,8 @@
-The only thing utilities-pagination try to do is that provide your functions a way to return values, which can be accessed by client page by page, without adding new arguments.
+Having pagination related arguments in a method signature will make the client code is awkward when invoke this method -- no matter what kind of business knowledge this method try to express, the pagination knowledge is always embedded. 
 
-utilities-pagination supports two types of paging fashion -- offset based, and Cursor based, but, you can also create your own paging fashion by implement *ResultPage\<S\>* interface.
+So, the goal of this utility is that provides you a simple way to define a method without having any pagination related arguments.    
+
+So far, there are two types of paging fashions provided as default -- offset based, and cursor based, but, you can also create your own paging fashion by implement *ResultPage\<S\>* interface.
 
 #Getting started
 
