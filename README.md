@@ -4,9 +4,9 @@ So, the goal of this utility is that provides you a simple way to define a metho
 
 So far, there are two types of paging fashions provided as default -- offset based, and cursor based, but, you can also create your own paging fashion by implement *ResultPage\<S\>* interface.
 
-#Getting started
+# Getting started
 
-##Adding pagination to a function
+## Adding pagination to a function
 
 You only need to do two things:
 
@@ -109,7 +109,7 @@ You only need to do two things:
     ```
 
 
-##Mapping returned values
+## Mapping returned values
 
 Sometime, we need to convert the values returned from one layer into another structure for another layer, for example, we need to convert returned values from access layer into DTO (Data transfer object) for UI layer.
 
@@ -138,7 +138,7 @@ public class StudentRepository {
 } 
 ```
 
-##Accessing values
+## Accessing values
 
 ```java
 public class Client {
