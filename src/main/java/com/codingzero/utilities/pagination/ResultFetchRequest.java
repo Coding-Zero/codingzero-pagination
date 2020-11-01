@@ -16,8 +16,8 @@ public class ResultFetchRequest {
         return arguments;
     }
 
-    public ResultPage getPage() {
-        return page;
+    public <T extends ResultPage> T getPage() {
+        return (T) page;
     }
 
     public ResultSorting getSorting() {
