@@ -9,7 +9,7 @@ So, utilities-pagination is built based on the idea to find a way to move pagina
 
 # Getting started
 
-### Download
+### Maven Dependence
 ```
 <dependency>
     <groupId>com.codingzero.utilities</groupId>

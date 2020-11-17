@@ -3,7 +3,7 @@ package com.codingzero.utilities.pagination;
 /**
  * This class represents offset (index) based paging result.
  * 
- * Also provide a helper PagingDelegate for supporting next page logic #{@link PagingDelegate#nextPage(Paging)}
+ * Also provide a helper PagingDelegate for supporting next page logic #{@link PagingDelegate#nextPage(ResultFetchRequest)}
  * 
  * @param <T> type of accessing data
  */
