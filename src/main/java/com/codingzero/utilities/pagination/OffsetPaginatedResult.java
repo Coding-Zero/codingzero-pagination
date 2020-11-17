@@ -22,8 +22,8 @@ public final class OffsetPaginatedResult<T> extends PaginatedResult<T, OffsetPag
     private static class OffsetPagingDelegate implements PagingDelegate<OffsetPaging> {
 
         @Override
-        public OffsetPaging nextPage(OffsetPaging current) {
-            return current.next();
+        public OffsetPaging nextPage(ResultFetchRequest<OffsetPaging> request) {
+            return request.getPage().next();
 
         }
     }

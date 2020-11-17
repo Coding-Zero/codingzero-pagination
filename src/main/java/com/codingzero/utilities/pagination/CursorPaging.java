@@ -8,6 +8,9 @@ package com.codingzero.utilities.pagination;
  */
 public final class CursorPaging extends Paging<String> {
 
+    public static final String START_CURSOR = "__START_CURSOR__";
+    public static final String END_CURSOR = "__END_CURSOR__";
+
     public CursorPaging(String start, int size) {
         super(start, size);
         checkForInvalidStart();
@@ -19,6 +22,19 @@ public final class CursorPaging extends Paging<String> {
         }
     }
 
+    public boolean isFirstPage() {
+        return START_CURSOR.equalsIgnoreCase(getStart());
+    }
 
+    public boolean isLastPage() {
+        return END_CURSOR.equalsIgnoreCase(getStart());
+    }
 
+    public static CursorPaging firstPage(int size) {
+        return new CursorPaging(START_CURSOR, size);
+    }
+
+    public static CursorPaging lastPage(int size) {
+        return new CursorPaging(END_CURSOR, size);
+    }
 }

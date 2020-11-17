@@ -74,7 +74,7 @@ public class PaginatedResult<T, P extends Paging> {
     public <R extends PaginatedResult<T, P>> R next() {
         checkForNoPage();
         checkForNullDelegate();
-        P nextPage = pagingDelegate.nextPage(currentPage);
+        P nextPage = (P) pagingDelegate.nextPage(new ResultFetchRequest(arguments, currentPage, fieldSorts));
         setCurrentPage(nextPage);
         return (R) this;
     }
