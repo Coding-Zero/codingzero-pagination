@@ -9,6 +9,15 @@ So, utilities-pagination is built based on the idea to find a way to move pagina
 
 # Getting started
 
+### Download
+```
+<dependency>
+    <groupId>com.codingzero.utilities</groupId>
+    <artifactId>utilities-pagination</artifactId>
+    <version>${the latest version}</version>
+</dependency>
+```
+
 ### PaginatedResult Usage
 **PaginatedResult\<T, P\>**
 T - return data type
