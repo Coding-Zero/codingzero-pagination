@@ -13,7 +13,7 @@ So, utilities-pagination is built based on the idea to find a way to move pagina
 ```
 <dependency>
     <groupId>com.codingzero.utilities</groupId>
-    <artifactId>utilities-pagination</artifactId>
+    <artifactId>codingzero-pagination</artifactId>
     <version>${the latest version}</version>
 </dependency>
 ```
