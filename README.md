@@ -1,4 +1,3 @@
-# utilities-pagination readme
 Having pagination arguments in your APIs make them looks very wordy and not friendly to use. So, I built utilities-pagination which provides a simple way to help you remove these arguments from you APIs.
 
 So far, utilities-pagination supports two paging styles -- offset based paging, and cursor based paging, but, you can also expend it to have your own paging fashion.
