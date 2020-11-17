@@ -1,167 +1,102 @@
-Having pagination related arguments in a method signature will make the client code is awkward when invoke this method -- no matter what kind of business knowledge this method try to express, the pagination knowledge is always embedded. 
+# utilities-pagination readme
+Having pagination arguments in your APIs make them looks very wordy and not friendly to use. So, I built utilities-pagination which provides a simple way to help you remove these arguments from you APIs.
 
-So, the goal of this utility is that provides you a simple way to define a method without having any pagination related arguments.    
+So far, utilities-pagination supports two paging styles -- offset based paging, and cursor based paging, but, you can also expend it to have your own paging fashion.
 
-So far, there are two types of paging fashions provided as default -- offset based, and cursor based, but, you can also create your own paging fashion by implement *ResultPage\<S\>* interface.
+# Concept
+Let's step back a little bit to think about pagination. We want to do pagination is all about the returned data from API, but API self.
+
+So, utilities-pagination is built based on the idea to find a way to move pagination from API to the returned data. **Delegate design pattern** is the whole key concept applied to get this job done.
 
 # Getting started
 
-## Adding pagination to a function
+### PaginatedResult Usage
+**PaginatedResult\<T, P\>**
+T - return data type
+P - paging type. OffsetPaging and CursorPaging are provided.
 
-You only need to do two things:
-
-1. Makes the return value as PaginatedResult\<T\> type.
-
-    ```java
-    public interface StudentDAO {
-        
-        PaginatedResult<List<Student>> selectBySchoolName(String name);
-        
-    }
-    ```
-
-2. Provides a delegate to the returned value.
-
-    **Offset based paging fashion**
-    ```java
-    public class StudentDAOImpl {
-        
-        public PaginatedResult<List<Student>> selectBySchoolId(String schoolId) {
-            return new PaginatedResult<>(new PaginatedResultDelegate<List<Student>>() {
-                
-                @Override
-                public List<Student> fetchResult(ResultFetchRequest resultFetchRequest) {
-                    String schoolId = resultFetchRequest.getArguments()[0];
-                    OffsetBasedResultPage page = (OffsetBasedResultPage) resultFetchRequest.getPage();
-                    
-                    StringBuilder sql = new StringBuilder();
-                    sql.append("SELECT * FROM students WHERE school_id = ? ");                    
-                    sql.append("LIMIT " + (page.getStart -1) + ", " + page.getSize());
-                                        
-                    Connection conn = getConnection();
-                    PreparedStatement stmt = null;
-                    ResultSet rs = null;
-                    try {                    
-                        stmt = conn.prepareCall(sql.toString());
-                        stmt.setString(1, schoolId);
-                        rs = stmt.executeQuery();
-                        return toStudentList(rs, request.getPage());
-                    } catch (SQLException | IOException e) {
-                        throw new RuntimeException(e);
-                    } finally {
-                        closeResultSet(rs);
-                        closePreparedStatement(stmt);
-                        closeConnection(conn);
-                    }
-                }
-            },
-            schoolId); //adding school id as an argument.
-        }
-        
-    }
-    ```
- 
-    **Cursor based paging fashion**
-    ```java
-    public class StudentDAOImpl {
-        
-        public PaginatedResult<List<Student>> selectBySchoolId(String schoolId) {
-            return new PaginatedResult<>(new PaginatedResultDelegate<List<Student>>() {
-             
-                @Override
-                public ResultPage nextPage(ResultFetchRequest currentRequest, List<Student> currentResult) {
-                    CursorBasedResultPage currentPage = (CursorBasedResultPage) currentRequest.getPage();
-                    String nextCursor = currentResult.get(currentResult.size() - 1).getId();  
-                    return new CursorBasedResultPage(nextCursor, currentPage.getSize());    
-                }
-                
-                @Override
-                public List<Student> fetchResult(ResultFetchRequest resultFetchRequest) {
-                    String schoolId = resultFetchRequest.getArguments()[0];
-                    CursorBasedResultPage page = (CursorBasedResultPage) resultFetchRequest.getPage();
-                    
-                    StringBuilder sql = new StringBuilder();
-                    sql.append("SELECT * FROM students WHERE school_id = ? AND key > ? ORDER BY key ASC");                    
-                    sql.append("LIMIT " + page.getSize());
-                                        
-                    Connection conn = getConnection();
-                    PreparedStatement stmt;
-                    ResultSet rs;
-                    try {                    
-                        stmt = conn.prepareCall(sql.toString());
-                        stmt.setString(1, schoolId);
-                        stmt.setString(2, page.getStart());
-                        rs = stmt.executeQuery();
-                        return toStudentList(rs, request.getPage());
-                    } catch (SQLException | IOException e) {
-                        throw new RuntimeException(e);
-                    } finally {
-                        closeResultSet(rs);
-                        closePreparedStatement(stmt);
-                        closeConnection(conn);
-                    }
-                }
-            },
-            schoolId); //adding school id as an argument.
-        }
-        
-    }
-    ```
-
-
-## Mapping returned values
-
-Sometime, we need to convert the values returned from one layer into another structure for another layer, for example, we need to convert returned values from access layer into DTO (Data transfer object) for UI layer.
-
-The easy way to do the conversion is that implements the *PaginatedResultMapper\<T, S\>* abstract class. The following example shows you that how to convert *Student* into *StudentDTO* for UI layer:
+Let's say you wanna to query students based on age, then you can declare the method as following:
 
 ```java
-public class StudentRepository {
-    
-    PaginatedResult<List<StudentDTO>> findBySchool(School school) {
-        PaginatedResult<List<Student>> result = studentDAO.selectBySchoolId(school.getId());
-        return new PaginatedResult<>(new PaginatedResultMapper<List<StudentDTO>, List<Student>>() {
-            
-            @Override
-            protected List<StudentDTO> toResult(List<Student> source, Object[] arguments) {
-                List<StudentDTO> entities = new ArrayList<>(source.size());
-                for (Student student: source) {
-                    entities.add(convertStudentToStudentDTO(student));
-                }
-                return Collections.unmodifiableList(entities);
-            }
-            
-        }, 
-        result); //must be the first argument.
-    }
-    
-} 
+PaginatedResult<List<Student>, OffsetPaging> getStudentsByAge(int age);
 ```
 
-## Accessing values
+PaginatedResult is composited with PaginatedResultDelegate, ResultCountDelegate, PagingDelegate and query arguments.
+
+**PaginatedResultDelegate** - for fetching data based on query arguments and paging arguments.
+
+**ResultCountDelegate (Optional)** - for count the total number of the data can be returned eventually. If you don't provide, then, PaginatedResult#getTotalCount() will throw UnsupportedOperationException.
+
+**PagingDelegate** - for calculating next page.
+
+**Query Arguments** - Arguments passed in from the API you declared, for the above example, it's "age"
+
+### PaginatedResultDelegate Usage
+OffsetPaginatedResult is part of PaginatedResult to be returned.
+
+There's one method must to be implemented.
 
 ```java
-public class Client {
-    
-    public static void main(String[] args) {        
-        PaginatedResult<List<StudentDTO>> result = studentRepository.findBySchool(new School("1"));
-        
-        //offset based paging.
-        result = result.start(new OffsetBasedResultPage(1, 25)); 
-        
-        //cursor based paging.
-        result = result.start(new CursorsetBasedResultPage(null, 25)); 
-        
-        //loop all student
-        List<StudentDTO> students = result.start();
-        do  {
-            print(students);
-            result = result.next(); //next page.
-        } while (students.size() > 0);
-    }
-    
+T fetchResult(ResultFetchRequest<? extends P> request);
+```
+
+T - return data type, List<Student> at above example
+P - paging type, OffsetPaging at above example.
+ResultFetchRequest - contains paging arguments, query parameters, 'age' at above example.
+
+The full example as following:
+```java
+public List<Student> getStudentsByAge(int age) {
+    return new OffsetPaginatedResult<>(
+            request -> {
+                int age = request.getArgument(0);
+                OffsetPaging paging = request.getPage();
+                List<Student> students = new ArrayList<>(paging.getSize());
+                //JDB query with paging args and convert result set to Student list
+                 return students;
+            },
+            age //<-- pass the age parameter
+    );
 }
 ```
 
+### OffsetPaginatedResult & CursorPaginatedResult
+There are two sub types of PaginatedResult, which will help you make the API more clean.
 
+For example, switch to OffsetPaginatedResult at the above example:
+```java
+OffsetPaginatedResult<List<Student>> getStudentsByAge(int age);
+```
 
+## Accessing data
+Now, let's access all students with the given age page by page
+```java
+OffsetPaginatedResult<List<Student>> result = getStudentsByAge(16);
+
+        //initial paging, first page
+        result = result.start(new OffsetPaging(1, 25));
+
+        //loop all student
+        List<StudentDTO> students;
+        do  {
+            students = result.getData();
+            //do something...
+            result = result.next(); //next page.
+        } while (students.size() > 0);
+```
+
+If you implement PagingDelegate interface, then you can another option to access all Students page by page.
+```java
+OffsetPaginatedResult<List<Student>> result = getStudentsByAge(16);
+
+        //get total number of data.
+        long total = result.getTotalCount();
+
+        //initial paging, first page
+        result = result.start(new OffsetPaging(1, 25));
+        while (result.getCurrentPage().getStart() <= total) {
+            students = result.getData();
+            //do something...
+            result = result.next();
+        }
+```

@@ -1,26 +1,39 @@
 package com.codingzero.utilities.pagination;
 
-public class ResultFetchRequest {
+import java.util.Collections;
+import java.util.List;
 
-    private Object[] arguments;
-    private ResultPage page;
-    private ResultSorting sorting;
+/**
+ * This class encapsulate all parameters which are required to fetch data
+ * from persistence systems, like database, file system etc.
+ *
+ * @param <P> type of paging
+ */
+public class ResultFetchRequest<P extends Paging> {
 
-    public ResultFetchRequest(Object[] arguments, ResultPage page, ResultSorting sorting) {
-        this.arguments = arguments;
+    private List<Object> arguments;
+    private P page;
+    private List<FieldSort> fieldSorts;
+
+    public ResultFetchRequest(List<Object> arguments, P page, List<FieldSort> fieldSorts) {
+        this.arguments = Collections.unmodifiableList(arguments);
         this.page = page;
-        this.sorting = sorting;
+        this.fieldSorts = Collections.unmodifiableList(fieldSorts);
     }
 
     public Object[] getArguments() {
-        return arguments;
+        return arguments.toArray(new Object[arguments.size()]);
     }
 
-    public <T extends ResultPage> T getPage() {
-        return (T) page;
+    public <T> T getArgument(int index) {
+        return (T) arguments.get(index);
     }
 
-    public ResultSorting getSorting() {
-        return sorting;
+    public P getPage() {
+        return page;
+    }
+
+    public List<FieldSort> getFieldSorts() {
+        return fieldSorts;
     }
 }

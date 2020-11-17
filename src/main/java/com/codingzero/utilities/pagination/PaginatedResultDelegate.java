@@ -1,23 +1,19 @@
 package com.codingzero.utilities.pagination;
 
-public interface PaginatedResultDelegate<T> {
+/**
+ * This interface define the protocol of how to fetch data.
+ *
+ * @param <T> type of data
+ * @param <P> type of paging
+ */
+public interface PaginatedResultDelegate<T, P extends Paging> {
 
     /**
-     * Returns a T type of result by specified tag and the giving arguments.
+     * Return data based on the given fetching request
      *
-     * The returned result is located by the giving page cursor.
-     *
-     * @param request ResultFetchRequest
+     * @param request ResultFetchRequest%3C? extends P%3E
      * @return T
      */
-    T fetchResult(ResultFetchRequest request);
+    T fetchResult(ResultFetchRequest<? extends P> request);
 
-    default ResultPage nextPage(ResultFetchRequest currentRequest, T currentResult){
-        if (OffsetBasedResultPage.class.isInstance(currentRequest.getPage())) {
-            OffsetBasedResultPage page = (OffsetBasedResultPage) currentRequest.getPage();
-            return page.next();
-        }
-        throw new UnsupportedOperationException("nextPage() need to be implemented first!");
-    }
-    
 }
