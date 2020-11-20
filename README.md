@@ -1,58 +1,31 @@
 Having pagination arguments in your APIs make them looks very wordy and not friendly to use. So, I built utilities-pagination which provides a simple way to help you remove these arguments from you APIs.
 
-So far, utilities-pagination supports two paging styles -- offset based paging, and cursor based paging, but, you can also expend it to have your own paging fashion.
+So far, codingzero-pagination supports two paging styles -- offset based paging, and cursor based paging, but, you can also expend it to have your own paging fashion.
 
 # Concept
-Let's step back a little bit to think about pagination. We want to do pagination is all about the returned data from API, but API self.
-
-So, utilities-pagination is built based on the idea to find a way to move pagination from API to the returned data. **Delegate design pattern** is the whole key concept applied to get this job done.
+utilities-pagination is built based on the idea to find a way to move pagination from API's signature to its returning data. **Delegate design pattern** is the whole key concept applied to get this job done.
 
 # Getting started
 
-### Maven Dependence
+### Maven Configuration
+Add the dependence to your pom.xml between \<dependences\>\</dependences\>.
 ```
 <dependency>
     <groupId>com.codingzero.utilities</groupId>
     <artifactId>codingzero-pagination</artifactId>
-    <version>${the latest version}</version>
+    <version>CHANGE_TO_THE_LATEST_VERSION</version>
 </dependency>
 ```
+### Basic Usage
+Let's use an example to explain how to declare a method and implement it.
 
-### PaginatedResult Usage
-**PaginatedResult\<T, P\>**
-T - return data type
-P - paging type. OffsetPaging and CursorPaging are provided.
-
-Let's say you wanna to query students based on age, then you can declare the method as following:
+Firstly, declare a method with wrapping up the returning data List\<Student\> with PaginatedResult.
 
 ```java
 PaginatedResult<List<Student>, OffsetPaging> getStudentsByAge(int age);
 ```
 
-PaginatedResult is composited with PaginatedResultDelegate, ResultCountDelegate, PagingDelegate and query arguments.
-
-**PaginatedResultDelegate** - for fetching data based on query arguments and paging arguments.
-
-**ResultCountDelegate (Optional)** - for count the total number of the data can be returned eventually. If you don't provide, then, PaginatedResult#getTotalCount() will throw UnsupportedOperationException.
-
-**PagingDelegate** - for calculating next page.
-
-**Query Arguments** - Arguments passed in from the API you declared, for the above example, it's "age"
-
-### PaginatedResultDelegate Usage
-OffsetPaginatedResult is part of PaginatedResult to be returned.
-
-There's one method must to be implemented.
-
-```java
-T fetchResult(ResultFetchRequest<? extends P> request);
-```
-
-T - return data type, List<Student> at above example
-P - paging type, OffsetPaging at above example.
-ResultFetchRequest - contains paging arguments, query parameters, 'age' at above example.
-
-The full example as following:
+Then, implement this method.
 ```java
 public List<Student> getStudentsByAge(int age) {
     return new OffsetPaginatedResult<>(
@@ -67,17 +40,8 @@ public List<Student> getStudentsByAge(int age) {
     );
 }
 ```
+Now, we can access these students page by page.
 
-### OffsetPaginatedResult & CursorPaginatedResult
-There are two sub types of PaginatedResult, which will help you make the API more clean.
-
-For example, switch to OffsetPaginatedResult at the above example:
-```java
-OffsetPaginatedResult<List<Student>> getStudentsByAge(int age);
-```
-
-## Accessing data
-Now, let's access all students with the given age page by page
 ```java
 OffsetPaginatedResult<List<Student>> result = getStudentsByAge(16);
 
@@ -93,7 +57,8 @@ OffsetPaginatedResult<List<Student>> result = getStudentsByAge(16);
         } while (students.size() > 0);
 ```
 
-If you implement PagingDelegate interface, then you can another option to access all Students page by page.
+You can also have another way to flip pages, if PaginatedResult#isTotalCountAvailable() returns 'true'.
+
 ```java
 OffsetPaginatedResult<List<Student>> result = getStudentsByAge(16);
 
@@ -108,3 +73,31 @@ OffsetPaginatedResult<List<Student>> result = getStudentsByAge(16);
             result = result.next();
         }
 ```
+
+### PaginatedResult
+**PaginatedResult\<T, P\>**
+T - return data type
+P - paging type. OffsetPaging and CursorPaging are provided.
+
+PaginatedResult is composited with **PaginatedResultDelegate**, **ResultCountDelegate**, **PagingDelegate** and method arguments (eg: 'age' in above example).
+
+### OffsetPaginatedResult & CursorPaginatedResult
+There are two sub types of PaginatedResult, which will help you make the API more clean.
+
+For example, switch to OffsetPaginatedResult at the above example:
+```java
+OffsetPaginatedResult<List<Student>> getStudentsByAge(int age);
+```
+
+### PaginatedResultDelegate
+OffsetPaginatedResult is part of PaginatedResult to be returned. It's used for fetching data based on method's arguments and paging arguments.
+
+T - return data type, List<Student> at above example
+P - paging type, OffsetPaging at above example.
+ResultFetchRequest - contains paging arguments, query parameters, 'age' at above example.
+
+### ResultCountDelegate (Optional)
+For counting the total number of the data can be returned eventually. If you don't provided this as create PaginatedResult object, then, PaginatedResult#getTotalCount() will throw UnsupportedOperationException.
+
+### PagingDelegate
+So far, this interface is only used for calculating next page.
