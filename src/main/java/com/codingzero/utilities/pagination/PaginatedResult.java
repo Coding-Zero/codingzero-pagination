@@ -60,8 +60,20 @@ public class PaginatedResult<T, P extends Paging> {
      * @return R extends PaginatedResult%3CT, P%3E
      */
     public <R extends PaginatedResult<T, P>> R start(P paging, FieldSort... fieldSort) {
+        return start(paging, Arrays.asList(fieldSort));
+    }
+
+    /**
+     * Initial the current page and sorting conditions.
+     *
+     * @param paging P
+     * @param fieldSorts List%3CFieldSort%3E list of FieldSort
+     * @param <R> R extends PaginatedResult%3CT, P%3E
+     * @return R extends PaginatedResult%3CT, P%3E
+     */
+    public <R extends PaginatedResult<T, P>> R start(P paging, List<FieldSort> fieldSorts) {
         setCurrentPage(paging);
-        this.fieldSorts = Collections.unmodifiableList(Arrays.asList(fieldSort));
+        this.fieldSorts = Collections.unmodifiableList(fieldSorts);
         return (R) this;
     }
 

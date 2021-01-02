@@ -36,4 +36,5 @@ public class ResultFetchRequest<P extends Paging> {
     public List<FieldSort> getFieldSorts() {
         return fieldSorts;
     }
+
 }
