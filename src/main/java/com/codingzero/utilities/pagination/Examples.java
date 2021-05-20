@@ -1,6 +1,7 @@
 package com.codingzero.utilities.pagination;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -94,7 +95,7 @@ public class Examples {
 
     private static CursorPaginatedResult<List<Integer>> getNumbers() {
         return new CursorPaginatedResult<>(
-                request -> {
+                (PaginatedResultDelegate<List<Integer>, CursorPaging>) request -> {
                     CursorPaging paging = request.getPage();
                     if (paging.isLastPage()) {
                         return Collections.EMPTY_LIST;
@@ -103,7 +104,7 @@ public class Examples {
                     int size = paging.getSize();
                     List<Integer> result = new ArrayList<>(size);
                     boolean needReturn = false;
-                    for (Map.Entry<String, Integer> entry: NUM_DICT.entrySet()) {
+                    for (Map.Entry<String, Integer> entry : NUM_DICT.entrySet()) {
                         if (paging.isFirstPage()
                                 || cursor.equalsIgnoreCase(entry.getKey())) {
                             needReturn = true;
@@ -114,29 +115,16 @@ public class Examples {
                     }
                     return result;
                 },
-                request -> {
-                    CursorPaging paging = request.getPage();
-                    String cursor = paging.getStart();
-                    int size = paging.getSize();
-                    int index = 0;
-                    boolean found = false;
-                    String nextCursor = null;
-                    for (Map.Entry<String, Integer> entry: NUM_DICT.entrySet()) {
-                        if (paging.isFirstPage()
-                            || cursor.equalsIgnoreCase(entry.getKey())) {
-                            found = true;
-                        }
-                        if (found) {
-                            if ((index ++) == size) {
-                                nextCursor = entry.getKey();
-                                break;
-                            }
-                        }
+                new CursorPaginatedResult.CursorPagingDelegate() {
+                    @Override
+                    protected Collection<String> getResult() {
+                        return NUM_DICT.keySet();
                     }
-                    if (Objects.isNull(nextCursor)) {
-                        return CursorPaging.lastPage(size);
+
+                    @Override
+                    protected boolean compare(String cursor, String key) {
+                        return key.equalsIgnoreCase(cursor);
                     }
-                    return new CursorPaging(nextCursor, size);
                 }
         );
     }
