@@ -40,6 +40,18 @@ public class PaginatedResult<T, P extends Paging> {
         checkForNullPagingDelegate();
     }
 
+    public PaginatedResultDelegate<T, P> getDelegate() {
+        return delegate;
+    }
+
+    public PagingDelegate<P> getPagingDelegate() {
+        return pagingDelegate;
+    }
+
+    public ResultCountDelegate getResultCountDelegate() {
+        return resultCountDelegate;
+    }
+
     /**
      * Initial the current page.
      *

@@ -27,9 +27,10 @@ public class Examples {
     }
 
     public static void main(String[] args) {
-        demoOffsetPaging();
-        demoOffsetPagingWithTotalCountEnabled();
-        demoCursorPaging();
+//        demoOffsetPaging();
+//        demoOffsetPagingWithTotalCountEnabled();
+//        demoCursorPaging();
+        demoCursorPagingNested();
     }
 
     private static void demoOffsetPaging() {
@@ -77,6 +78,32 @@ public class Examples {
                 },
                 request -> LINES.size()
         );
+    }
+
+    private static void demoCursorPagingNested() {
+        CursorPaginatedResult<List<Integer>> resultBase = getNumbers();
+        CursorPaginatedResult<List<String>> result = new CursorPaginatedResult<>(
+                (PaginatedResultDelegate<List<String>, CursorPaging>) request -> {
+                    CursorPaging paging = request.getPage();
+                    List<Integer> numbers = resultBase.start(paging).getData();
+                    List<String> numStrings = new ArrayList<>(numbers.size());
+                    for (Integer num: numbers) {
+                        numStrings.add(String.valueOf(num));
+                    }
+                    return numStrings;
+                },
+                resultBase.getPagingDelegate()
+        );
+
+        //Accessing data page by page
+        List<String> lines;
+        result = result.start(CursorPaging.firstPage(30));
+        do {
+            System.out.println(result.getCurrentPage());
+            lines = result.getData();
+            System.out.println(lines);
+            result = result.next();
+        } while (lines.size() > 0);
     }
 
     private static void demoCursorPaging() {
