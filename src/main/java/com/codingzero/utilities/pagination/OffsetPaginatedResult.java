@@ -9,7 +9,8 @@ package com.codingzero.utilities.pagination;
  */
 public final class OffsetPaginatedResult<T> extends PaginatedResult<T, OffsetPaging> {
 
-    public OffsetPaginatedResult(PaginatedResultDelegate<T, OffsetPaging> delegate, Object... arguments) {
+    public OffsetPaginatedResult(PaginatedResultDelegate<T, OffsetPaging> delegate,
+                                 Object... arguments) {
         this(delegate, null, arguments);
     }
 

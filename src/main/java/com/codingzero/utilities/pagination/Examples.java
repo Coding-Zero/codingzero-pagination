@@ -27,9 +27,9 @@ public class Examples {
     }
 
     public static void main(String[] args) {
-//        demoOffsetPaging();
-//        demoOffsetPagingWithTotalCountEnabled();
-//        demoCursorPaging();
+        demoOffsetPaging();
+        demoOffsetPagingWithTotalCountEnabled();
+        demoCursorPaging();
         demoCursorPagingNested();
     }
 
@@ -142,16 +142,29 @@ public class Examples {
                     }
                     return result;
                 },
-                new CursorPaginatedResult.CursorPagingDelegate() {
-                    @Override
-                    protected Collection<String> getResult() {
-                        return NUM_DICT.keySet();
+                request -> {
+                    CursorPaging paging = request.getPage();
+                    String cursor = paging.getStart();
+                    int size = paging.getSize();
+                    int index = 0;
+                    boolean foundCursor = false;
+                    String nextCursor = null;
+                    for (String key: NUM_DICT.keySet()){
+                        if (paging.isFirstPage()
+                                || key.equalsIgnoreCase(cursor)) {
+                            foundCursor = true;
+                        }
+                        if (foundCursor) {
+                            if ((index ++) == size) {
+                                nextCursor = key;
+                                break;
+                            }
+                        }
                     }
-
-                    @Override
-                    protected boolean compare(String cursor, String key) {
-                        return key.equalsIgnoreCase(cursor);
+                    if (Objects.isNull(nextCursor)) {
+                        return CursorPaging.lastPage(size);
                     }
+                    return new CursorPaging(nextCursor, size);
                 }
         );
     }
