@@ -147,6 +147,15 @@ public class PaginatedResult<T, P extends Paging> {
     }
 
     /**
+     * Returns an array of arguments
+     *
+     * @return Object[]
+     */
+    public Object[] toArguments() {
+        return arguments.toArray(new Object[arguments.size()]);
+    }
+
+    /**
      * Returns the current sorting conditions.
      *
      * @return List%3CFieldSort%3E
